@@ -16,21 +16,21 @@ def signup():
                 data = request.get_json()
                 name = data.get('name')
                 email = data.get('email')
-                phone = data.get('phone')
+                phone = str(data.get('phone'))  #
                 password = data.get('password')
-
+                print("Name:", name)
                 errors = []
                 email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
                 #valid_email = re.match(email_pattern, email)
                 valid_email = True
-                valid_name = name.isalpha()
+                valid_name = name.replace(' ', '').isalpha()
                 valid_phone = phone.isnumeric()
-
+                print('name: ', valid_name)
                 if valid_email != True:
                     print(valid_email)
                     errors.append("Invalid Email")
 
-                if valid_name != True:
+                if not valid_name:
                     errors.append("Name must be only alphabets")
 
                 if valid_phone != True and len(str(abs(phone))) != 11:
@@ -40,7 +40,8 @@ def signup():
                     errors.append("Password must be more than 8 characters")
 
                 if errors:
-                    return errors
+                    storage.roll()
+                    return errors, 400
                 
                 hashed_password = bcrypt.hashpw((data.get('password')).encode('utf-8'), bcrypt.gensalt())
                 new_user = Users(name, email, hashed_password, phone)
@@ -60,6 +61,16 @@ def signup():
                 response = {
             'error': 'Duplicate email found. Please choose a different email.'
         }
+                return jsonify(response), 400
+        except exc.PendingRollbackError as e:
+            response = {'error': 'resend entry'}
+            storage.roll()
+            return jsonify(response), 400
+            
+
+        except AttributeError as e:
+            print(e)
+            response = {'errror': 'one of the fields is missing'}
             return jsonify(response), 400
         
 

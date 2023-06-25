@@ -17,9 +17,10 @@ class Listings(BaseModel, Base):
     images = Column(String(100))
     description = Column(String(500))
     type = Column(Enum('self contain', 'bedroom'))
+    major_area = Column(String(60))
     userID = Column(Integer, ForeignKey('users.id'), default=1)
 
-    def __init__(self, name, location, latitude, longitude, price, pairing, type, rooms, images, description):
+    def __init__(self, name, location, latitude, longitude, price, pairing, type, rooms, images, major_area, description):
         self.name = name
         self.location = location
         self.latitude = latitude
@@ -29,4 +30,5 @@ class Listings(BaseModel, Base):
         self.pairing = pairing
         self.rooms = rooms
         self.images = images
+        self.major_area = major_area
         self.description = description

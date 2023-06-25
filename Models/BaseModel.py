@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import text
 
 
 
@@ -69,9 +70,25 @@ class BaseModel():
         data = self.__session.query(table).filter_by(**{param: value}).first()
         return data
     
-    def query_all(self, table):
+    def take_query(self, string):
+        query = text(string)
+        result = self.__session.execute(query)
+        columns = result.keys()
+
+        # Fetch all the rows as dictionaries
+        results = [dict(zip(columns, row)) for row in result.fetchall()]
+        return results
+        
+    def roll(self):
+        self.__session.rollback()
+
+
+    def query_all(self, table, param=None, value=None):
         """Query DB for a specific table"""
-        data = self.__session.query(table).all()
+        if param == None:
+            data = self.__session.query(table).all()
+        else:
+            data = self.__session.query(table).filter_by(**{param: value})
         rows = []
         for i in data:
             rows.append(self.serialize_row(i))

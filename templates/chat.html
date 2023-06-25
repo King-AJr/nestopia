@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nestopia</title>
+    <link rel="stylesheet" type="text/css" href='../static/styles/chat.css'>
+</head>
+<body>
+    <h1>Welcome {{ username }} to chat room {{ room }}</h1>
+    <div class="chat-container">
+    <div id="messages" class="message"></div>
+    <form id="message_input_form" class="chat-form">
+        <input type="text" id="message_input" class="input-field" placeholder="Enter your message here">
+        <button type="submit" class="input-btn">Send</button>
+    </form>
+    </div>
+
+    
+
+</body>
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js" 
+        integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" 
+        crossorigin="anonymous">
+</script>
+<script>
+    const socket = io.connect("127.0.0.1:5050")
+    socket.on('connect', function () {
+        socket.emit('join_room', {
+            username : "{{ username }}",
+            room: "{{ room }}"
+        })
+    let message_input = document.getElementById('message_input');
+
+    document.getElementById('message_input_form').onsubmit = function (e) {
+        e.preventDefault();
+        let message = message_input.value.trim();
+        if (message.length) {
+            socket.emit('send_message', {
+                username: "{{ username }}",
+                room: "{{ room }}",
+                message: message
+            })
+        }
+        message_input.value = '';
+        message_input.focus();
+    }
+    });
+
+
+    // socket.on('join_room_announcement', function (data) {
+    //     if (data.username !== "{{ username }}") {
+    //         const newNode = document.createElement('div');
+    //         newNode.innerHTML = `<b>${data.username}</b> has joined the room`;
+    //         document.getElementById('messages').appendChild(newNode);
+    //     }
+    // });
+
+    socket.on('receive_message', function (json_msg) {
+    var messagesContainer = document.getElementById('messages');
+    
+    for(var i = 0; i < json_msg.length; i++) {
+        var message = json_msg[i];
+        
+        var messageContainer = document.createElement('div');
+        messageContainer.classList.add('message-container');
+        
+        var messageContent = document.createElement('div');
+        messageContent.classList.add('message-content');
+        messageContent.innerText = message.content;
+        
+        messageContainer.appendChild(messageContent);
+        
+        if (message.sent_by !== '{{ username }}') {
+            messageContainer.classList.add('other-message');
+        }
+        else {
+            messageContainer.classList.add('my-message');
+        }
+        
+        messagesContainer.appendChild(messageContainer);
+    }
+});
+
+
+
+   </script> 
+</html>
