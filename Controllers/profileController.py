@@ -96,9 +96,12 @@ def view_profile():
         id = request.args.get('id')
         params = 'id'
         profile = storage.data_dict(Profile, params, id)
+
         if profile == None:
             return "profile does not exist", 404
-        return jsonify({'profile':profile})
+        user = storage.data_dict(Users, params, profile['userID'])
+        user.pop('password')
+        return jsonify({'profile':profile, 'user': user})
     except AttributeError as e:
         return "profile does not exist", 404
 

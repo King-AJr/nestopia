@@ -3,10 +3,12 @@ import Footer from "./Footer"
 import Header from "./Header"
 import axios from "axios";
 import { useState, useEffect } from "react";
+import useAuth from "../Hooks/useAuth";
 
 const Pairs = () => {
     const id = useParams()
     const [data, setData] = useState([]);
+    const {pair, setPair} = useAuth()
 
 useEffect(() => {
     const fetchListing = async () => {
@@ -31,8 +33,8 @@ fetchListing()
             <div className="row align-items-center">
                <div className="col-lg-8">
                   <div className="crn-service-title-wrapper mb-60">
-                     <span className="crn-section-title-pre">Our Service</span>
-                     <h3 className="crn-section-title">Find your dream home <br /> with us</h3>
+                     <span className="crn-section-title-pre">Find your perfect match</span>
+                     <h3 className="crn-section-title">Here are students that <br /> match your profile</h3>
                   </div>
                </div>
                <div className="col-lg-4">
@@ -44,7 +46,7 @@ fetchListing()
             </div>
             <div className="row">
             {data.map(element => (
-               <div className="col-lg-4 col-md-6">
+               <div key={element.id} className="col-lg-4 col-md-6">
                   <div className="crn-service-item p-relative mb-30 wow fadeInUp" data-wow-duration="1s"
                      data-wow-delay=".2s">
                      <div className="crn-service-item-thumb">
@@ -56,10 +58,10 @@ fetchListing()
                         </span>
                      </div>
                      <div className="crn-service-item-content">
-                        <h3 className="crn-service-title"><a href="service-details.html">Chat with {element.name}</a></h3>
+                        <h3 className="crn-service-title"><Link to={`/message/${element.id}`}>Chat with {element.name}</Link></h3>
                         <p></p>
-                        <a className="btn" href="service-details.html"><span><i
-                                 className="fa-regular fa-arrow-right"></i></span></a>
+                        <Link className="btn" to={`/message/${element.id}`}><span><i
+                                 className="fa-regular fa-arrow-right"></i></span></Link>
                      </div>
                   </div>
                </div>

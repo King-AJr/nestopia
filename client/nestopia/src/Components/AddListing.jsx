@@ -78,6 +78,7 @@ function AddListing () {
 };
     return (
         <div>
+            <Header/>
             <main>
         {/* <!-- Banner Area --> */}
         <section className="banner-listing-area">
@@ -97,13 +98,6 @@ function AddListing () {
         <section className="company-info-area bg-gray pt-130 pb-100">
             <div className="container">
                 <div className="row">
-                    <div className="banner-down d-flex flex-wrap justify-content-between mb-70">
-                        <p className="small-2">If you don't have an account you can optionally create one below by entering
-                            your email address/username.</p>
-                        <a className="down-btn" href="#">Sign in</a>
-                    </div>
-
-
                     <div className="company-info mb-50">
                         <form className="row g-4" onSubmit={handleSubmit}>
                             <div className="mb-3">

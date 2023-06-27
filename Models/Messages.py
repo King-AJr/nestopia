@@ -18,11 +18,9 @@ class Messages(BaseModel, Base):
     content = Column(String(500))
     
 
-    def __init__(self, room, sent_by, sent_to, content, recieved, read):
+    def __init__(self, room, sent_by, sent_to, content):
         self.room = room
         self.sent_by = sent_by
         self.sent_to = sent_to
         self.content = content
-        self.read = read
-        self.recieved = recieved
-
+        

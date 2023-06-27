@@ -1,15 +1,19 @@
 
 import './AuthForm.css'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react'
 import axios from 'axios';
+import useAuth from "../Hooks/useAuth";
+
 
 
 const SignIn = () => {
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
-  
-
+    const {auth, setAuth} = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/"
 
 
     const handleSubmit = (e) => {
@@ -27,7 +31,9 @@ const SignIn = () => {
             }, headers)
           .then(response => {
             // Handle the response from the backend
-            console.log(response.data)
+            setAuth(response.data.token)
+            navigate(from, {replace : true});
+
         })
         .catch(error => {
           console.error(error);

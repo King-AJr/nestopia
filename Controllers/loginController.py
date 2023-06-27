@@ -35,11 +35,10 @@ def login():
 
                 user = storage.data_dict(Users, param, email)
                 if user:
-                    # print(user)
                     if bcrypt.checkpw(password.encode("utf-8"), user.get('password').encode("utf-8")):
                         temp_profile = storage.data_dict(Profile, p_param, user.get('id'))
-                        # print(temp_profile)
-                        token = jwt.encode({'user': user, 'profile': temp_profile}, secret_key, algorithm='HS256')
+                        user.pop('password')
+                        token = {'user': user, 'profile': temp_profile}
                         return jsonify({'token': token})
                     else:
                         return ("Incorrect authentication detail"), 400

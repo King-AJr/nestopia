@@ -2,10 +2,12 @@
 from flask import Flask, render_template
 from datetime import datetime
 from flask_socketio import SocketIO, join_room
+from flask_socketio import emit
 from Controllers.signupController import signup
 from Controllers.listingsController import add_listing, view_listing, delete_listing, all_listing, update_listing, area
 from Controllers.profileController import add_profile, view_profile, delete_profile, all_profile, update_profile, paired_users
 from Controllers.loginController import login
+from Controllers.MessagingController import all_messages
 from Models.Messages import Messages
 from Models import storage
 import time
@@ -23,9 +25,10 @@ from Models import storage
 
 
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins='http://localhost:3001')
 CORS(app)
 app.config['UPLOAD_FOLDER'] = './UPLOAD_FOLDER'
-socketio = SocketIO(app)
+
 
 @app.route('/')
 def homepage():
@@ -93,6 +96,19 @@ def deleteProfile():
     """delete listing from DB"""
     return delete_profile()
 
+
+@app.route('/area_listings')
+def major_area():
+    return area()
+
+@app.route('/view_pairs')
+def view_pairs():
+    return paired_users()  
+
+@app.route('/rollback')
+def roll():
+    return storage.roll() 
+
 @app.route('/chat')
 def chat_engine():
     """deal with chat engine"""
@@ -104,14 +120,9 @@ def chat_engine():
 def handle_join():
     return render_template('index.html')
 
-@app.route('/area_listings')
-def major_area():
-    return area()
-
-@app.route('/view_pairs')
-def view_pairs():
-    return paired_users()   
-
+@app.route('/messages')
+def handle_messages():
+    return all_messages()
 
 @socketio.on('join_room')
 def handle_join(data):
@@ -155,19 +166,23 @@ def upload():
     names_string = ','.join(file_names)
     return names_string
 
-
+#room, sent_by, sent_to, content
 @socketio.on('send_message')
 def handle_send_message_event(data):
-    app.logger.info("{} has sent a message to the room {}: {}".format(data['username'],
+    print('gotten here')
+    app.logger.info("{} has sent a message to the room {}: {}".format(data['sender'],
                                                                      data['room'],
                                                                      data['message']))
-    room = '{}{}-{}{}'.format(data['username'], 5, 'kumba', 10)
-    message = Messages(room, data['username'], 'victor', data['message'])
+    
+    message = Messages(data['room'], data['sender'], data['receiver'], data['message'])
     storage.new(message)
     storage.save()
 
+    # Emit the message to the second user in the room
+    emit('received_message', message, room=data['room'], include_self=False)
+
     param = 'room'
-    messages = storage.query_all(Messages, param, room)
+    messages = storage.query_all(Messages, param, data['room'])
     sorted_messages = sorted(messages, key=lambda x: x['sent_at'])
     json_msg = []
     for i in sorted_messages:

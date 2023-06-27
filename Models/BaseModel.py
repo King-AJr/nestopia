@@ -46,7 +46,7 @@ class BaseModel():
 
     def close(self):
         """call remove() method on the private session attribute"""
-        self.__session.remove()
+        self.__session.close()
 
     @staticmethod
     def serialize_row(row):
@@ -68,7 +68,7 @@ class BaseModel():
     def query(self, table, param, value):
         """Query DB for specific data"""
         data = self.__session.query(table).filter_by(**{param: value}).first()
-        return data
+        return data if data else None
     
     def take_query(self, string):
         query = text(string)
@@ -81,6 +81,7 @@ class BaseModel():
         
     def roll(self):
         self.__session.rollback()
+        return 'done'
 
 
     def query_all(self, table, param=None, value=None):

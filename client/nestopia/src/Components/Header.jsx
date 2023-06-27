@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom"
+import useAuth from "../Hooks/useAuth";
+import { useEffect } from "react";
 
 
 const Header = () => {
+   const {auth, setAuth} = useAuth();
     return (
         <div>
               <header className="crn-header-area crn-header-height p-relative">
@@ -61,14 +64,16 @@ const Header = () => {
                                     <Link to="/">Home</Link>
                                  </li>
                                  <li className="has-dropdown"><Link to='/all_listings'>Listings</Link>
-                                 <ul class="submenu">
+                                 <ul className="submenu">
                                        <li><Link to="/add_listing">Add listing</Link></li>
                                        <li><Link to="/all_listings">View listing</Link></li>
                                     </ul></li>
-                                 <li><a href="service.html">Roomates</a>
+                                 <li><Link to={`/view_pairs/${auth?.user?.id}`}>Roomates</Link>
                                  </li>
-                                 <li ><Link to="/signin">Sign In</Link>
-                                 </li>
+                                 { 
+                                 auth?.user ? <li ><Link to="/signin">{auth?.user?.name}</Link> </li>
+                                                   : <li ><Link to="/signin">Sign In</Link> </li>
+                                 }
                                  <li><a href="contact.html">Contact</a></li>
                               </ul>
                            </nav>
